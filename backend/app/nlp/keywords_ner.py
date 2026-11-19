@@ -1,7 +1,6 @@
 import re
 from collections import Counter
 from typing import List, Dict, Set
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 # Common academic and generic English stop words
@@ -132,6 +131,8 @@ class KeywordsAndNER:
             return []
 
         try:
+            from sklearn.feature_extraction.text import TfidfVectorizer
+
             vectorizer = TfidfVectorizer(
                 stop_words="english",
                 ngram_range=(1, 2),

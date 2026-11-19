@@ -1,6 +1,5 @@
 import logging
 from typing import List, Dict, Any
-import numpy as np
 from app.collectors.base import RawPaper
 from app.nlp.embeddings import embedding_engine
 from app.nlp.keywords_ner import KeywordsAndNER
@@ -21,6 +20,8 @@ class SimilarityAnalyzer:
         papers: List[RawPaper],
         idea_keywords: List[str] = None
     ) -> List[Dict[str, Any]]:
+        import numpy as np
+
         if not papers:
             return []
 

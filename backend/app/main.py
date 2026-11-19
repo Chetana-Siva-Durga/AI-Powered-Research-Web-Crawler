@@ -23,17 +23,13 @@ logger = logging.getLogger("research_scope")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Lifecycle events: initialize database schema and pre-warm AI models upon startup."""
+    """Initialize database schema; embedding models load only when an analysis needs them."""
     logger.info("Starting Research Scope API Server...")
     try:
         init_db()
         logger.info("Database tables verified/created successfully.")
     except Exception as e:
         logger.error("Failed to initialize database on startup: %s", e)
-
-    # Import embedding engine — this triggers background SentenceTransformer pre-warm
-    from app.nlp.embeddings import embedding_engine
-    logger.info("SentenceTransformer pre-warm started in background thread...")
 
     yield
     logger.info("Shutting down Research Scope API Server...")
@@ -44,15 +40,6 @@ app = FastAPI(
     description=settings.PROJECT_DESCRIPTION,
     version=settings.VERSION,
     lifespan=lifespan,
-)
-
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
 )
 
 # Mount API Routers
@@ -85,14 +72,24 @@ def health_check():
 
 @app.get("/api/status")
 def model_status():
-    """Returns the readiness state of the AI embedding model."""
+    """Returns whether the embedding engine can serve requests and its loading state."""
     from app.nlp.embeddings import embedding_engine
     return {
         "status": "healthy",
-        "model_ready": embedding_engine._st_available,
-        "model_loading": embedding_engine._loading,
+        "model_ready": embedding_engine.is_ready,
+        "model_loading": embedding_engine.model_loading,
         "version": settings.VERSION,
     }
+
+
+# Wrap the complete FastAPI app so CORS headers are also applied to error responses.
+app = CORSMiddleware(
+    app=app,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With"],
+)
 
 
 if __name__ == "__main__":

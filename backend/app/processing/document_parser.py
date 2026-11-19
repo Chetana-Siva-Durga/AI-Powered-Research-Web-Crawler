@@ -1,12 +1,15 @@
+from __future__ import annotations
+
 import io
 import json
 import logging
 import re
-from typing import List
-import pandas as pd
-from pypdf import PdfReader
+from typing import List, TYPE_CHECKING
 from app.collectors.base import RawPaper
 from app.processing.cleaner import TextCleaner
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 logger = logging.getLogger("research_scope.processing.document_parser")
 
@@ -24,8 +27,12 @@ class DocumentParser:
 
         try:
             if ext == "csv":
+                import pandas as pd
+
                 papers = cls._parse_tabular(pd.read_csv(io.BytesIO(content)), filename)
             elif ext in ("xlsx", "xls"):
+                import pandas as pd
+
                 papers = cls._parse_tabular(pd.read_excel(io.BytesIO(content)), filename)
             elif ext == "json":
                 papers = cls._parse_json(content, filename)
@@ -96,6 +103,8 @@ class DocumentParser:
 
     @classmethod
     def _parse_json(cls, content: bytes, filename: str) -> List[RawPaper]:
+        import pandas as pd
+
         data = json.loads(content.decode("utf-8", errors="ignore"))
         items = data if isinstance(data, list) else data.get("papers", [data])
         df = pd.DataFrame(items)
@@ -104,6 +113,8 @@ class DocumentParser:
     @classmethod
     def _parse_pdf(cls, content: bytes, filename: str) -> List[RawPaper]:
         """Extracts text from PDF and identifies title and abstract."""
+        from pypdf import PdfReader
+
         reader = PdfReader(io.BytesIO(content))
         full_text = ""
         for i, page in enumerate(reader.pages[:5]):  # inspect first 5 pages

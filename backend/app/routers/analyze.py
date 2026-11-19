@@ -56,12 +56,6 @@ async def analyze_research_idea(
     idea_text = request.idea.strip()
     logger.info("Initiating research analysis for: '%s'", idea_text[:60])
 
-    # Ensure embedding model is loaded (pre-warm starts at server startup; this just waits if it's still loading)
-    from app.nlp.embeddings import embedding_engine
-    if embedding_engine._loading or (not embedding_engine._st_available and embedding_engine._prewarm_thread.is_alive()):
-        logger.info("Waiting for SentenceTransformer model to finish loading (max 25s)...")
-        await __import__("asyncio").to_thread(embedding_engine.wait_for_model, 25.0)
-
     # 1. Domain Detection and Keyword Extraction
     detected_domain, domain_conf, subdomains = DomainDetector.detect(idea_text, user_hint=request.domain)
 
