@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, History, ArrowRight, Clock, Trash2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../api';
 
 export default function HistoryModal({ isOpen, onClose, onSelectAnalysis }) {
   const [historyItems, setHistoryItems] = useState([]);
@@ -18,7 +18,7 @@ export default function HistoryModal({ isOpen, onClose, onSelectAnalysis }) {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get('/api/history');
+      const res = await api.get('/api/history');
       setHistoryItems(res.data);
     } catch (err) {
       console.error('Failed to fetch history:', err);
@@ -35,7 +35,7 @@ export default function HistoryModal({ isOpen, onClose, onSelectAnalysis }) {
     setDeletingId(item.analysis_id);
     setError('');
     try {
-      await axios.delete(`/api/history/${item.analysis_id}`);
+      await api.delete(`/api/history/${item.analysis_id}`);
       setHistoryItems((items) => items.filter((historyItem) => historyItem.analysis_id !== item.analysis_id));
     } catch (err) {
       console.error('Failed to delete analysis:', err);

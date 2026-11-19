@@ -3,8 +3,8 @@ import {
   Download, ArrowLeft, Layers, Sparkles, BookOpen, 
   TrendingUp, Lightbulb, Award, Database, Share2, Check 
 } from 'lucide-react';
-import axios from 'axios';
 
+import api from '../api';
 import MetricsOverview from './MetricsOverview';
 import ExplanationView from './ExplanationView';
 import RelevanceRadar from './RelevanceRadar';
@@ -22,7 +22,7 @@ export default function Dashboard({ data, onNewAnalysis }) {
   const handleExport = async (format = 'markdown') => {
     setDownloading(true);
     try {
-      const response = await axios.post('/api/export', {
+      const response = await api.post('/api/export', {
         analysis_data: data,
         format: format,
       }, {

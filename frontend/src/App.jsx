@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Sparkles, Compass, AlertCircle, RefreshCw, Cpu, CheckCircle2 } from 'lucide-react';
 
+import api from './api';
 import Navbar from './components/Navbar';
 import InputSection from './components/InputSection';
 import Dashboard from './components/Dashboard';
@@ -39,7 +39,7 @@ export default function App() {
     let pollInterval;
     const checkStatus = async () => {
       try {
-        const res = await axios.get('/api/status', { timeout: 5000 });
+        const res = await api.get('/api/status', { timeout: 5000 });
         if (res.data.model_ready) {
           setModelReady(true);
           setModelLoading(false);
@@ -70,7 +70,7 @@ export default function App() {
     }, 1800);
 
     try {
-      const response = await axios.post('/api/analyze', payload, { timeout: 180000 });
+      const response = await api.post('/api/analyze', payload, { timeout: 180000 });
       clearInterval(stepInterval);
       setAnalysisData(response.data);
       setActiveView('dashboard');
@@ -102,7 +102,7 @@ export default function App() {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get(`/api/history/${analysisId}`);
+      const res = await api.get(`/api/history/${analysisId}`);
       handleAnalyze({
         idea: res.data.idea,
         domain: res.data.domain,

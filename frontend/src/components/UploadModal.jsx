@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, UploadCloud, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
-import axios from 'axios';
+import api from '../api';
 
 export default function UploadModal({ isOpen, onClose, onUploadSuccess }) {
   const [file, setFile] = useState(null);
@@ -27,7 +27,7 @@ export default function UploadModal({ isOpen, onClose, onUploadSuccess }) {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('/api/upload', formData, {
+      const response = await api.post('/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setResult(response.data);
